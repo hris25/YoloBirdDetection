@@ -67,5 +67,5 @@ def detect_bird_in_video(video_path):
     
     cap.release()
     #print("Traitement terminé.")
-    return output
+    return 'The output is : ' + str(output)
 print(detect_bird_in_video(video_path))

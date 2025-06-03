@@ -4,3 +4,5 @@ opencv-python==4.9.0.80
 opencv-python-headless==4.9.0.80
 ultralytics==8.3.55
 ultralytics-thop==2.0.13
+requests==2.31.0
+RPi.GPIO==0.7.1; 
