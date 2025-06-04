@@ -67,5 +67,7 @@ def detect_bird_in_video(video_path):
     
     cap.release()
     #print("Traitement terminé.")
+
+    print(f"Name:    frame_{output['frame_idx']:04d}.jpg")
     return 'The output is : ' + str(output)
 print(detect_bird_in_video(video_path))
