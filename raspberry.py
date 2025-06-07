@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import requests
 from ultralytics import YOLO
+import subprocess
 from datetime import datetime
 import RPi.GPIO as GPIO
 import mimetypes
@@ -172,25 +173,41 @@ def send_alert(video_path, media_path):
         session.close()
 
 def record_video(duration=5):
-    filename = f"videos/detection_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
-    cap = cv2.VideoCapture(0)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    fps = 20
-    width = int(cap.get(3))
-    height = int(cap.get(4))
-    out = cv2.VideoWriter(filename, fourcc, fps, (width, height))
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    h264_path = f"videos/tmp_{timestamp}.h264"
+    mp4_path = f"videos/detection_{timestamp}.mp4"
 
-    start_time = time.time()
-    while time.time() - start_time < duration:
-        ret, frame = cap.read()
-        if ret:
-            out.write(frame)
-        else:
-            break
+    # Commande pour enregistrer la vidéo avec libcamera-vid
+    record_cmd = [
+        "libcamera-vid",
+        "-t", str(duration * 1000),  # durée en ms
+        "-o", h264_path,
+        "--width", "1920",
+        "--height", "1080",
+        "--framerate", "30"
+    ]
 
-    cap.release()
-    out.release()
-    return filename
+    try:
+        print(f"[INFO] Enregistrement vidéo avec libcamera-vid ({duration}s)...")
+        subprocess.run(record_cmd, check=True)
+
+        # Conversion en MP4 avec ffmpeg
+        convert_cmd = [
+            "ffmpeg",
+            "-framerate", "30",
+            "-i", h264_path,
+            "-c", "copy",
+            mp4_path
+        ]
+        subprocess.run(convert_cmd, check=True)
+
+        os.remove(h264_path)
+        print(f"[INFO] Vidéo enregistrée et convertie : {mp4_path}")
+        return mp4_path
+
+    except subprocess.CalledProcessError as e:
+        print(f"[ERREUR] Lors de l'enregistrement ou la conversion : {e}")
+        return None
 
 def main_loop():
     try:
