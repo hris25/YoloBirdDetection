@@ -87,15 +87,15 @@ def send_alert(video_path, media_path):
     
     # Déterminer les types MIME
     media_mime = mimetypes.guess_type(media_path)[0] or 'image/jpeg'
-    video_mime = mimetypes.guess_type(video_path)[0] or 'video/mp4'
+    tram_mime = mimetypes.guess_type(video_path)[0] or 'video/mp4'
     
     print(f"Type MIME media: {media_mime}")
-    print(f"Type MIME video: {video_mime}")
+    print(f"Type MIME video: {tram_mime}")
     
     # Préparer les fichiers pour l'envoi avec les types MIME corrects
     files = {
         'media': ('media', open(media_path, 'rb'), media_mime),
-        'video': ('video', open(video_path, 'rb'), video_mime)
+        'tram': ('tram', open(video_path, 'rb'), tram_mime)
     }
     
     # Données supplémentaires
@@ -224,7 +224,7 @@ def main_loop():
                 time.sleep(2)
                 GPIO.output(BUZZER_PIN, GPIO.LOW)
 
-                send_alert(f'videos/{video_file}', f'output/frame_{result['frame_idx']:04d}.jpg')
+                send_alert(video_file, f"output/frame_{result['frame_idx']:04d}.jpg")
 
             time.sleep(1)  # pause avant la prochaine boucle
 
